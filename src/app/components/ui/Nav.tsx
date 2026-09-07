@@ -6,37 +6,37 @@ function NavList() {
     return (
         <>
             <li>
-                <a className='hover:underline'>
+                <a className='hover:underline' href='/'>
                     Home
                 </a>
             </li>
             <li>
-                <a className='hover:underline'>
+                <a className='hover:underline' href='#about'>
                     About
                 </a>
             </li>
             <li>
-                <a className='hover:underline'>
+                <a className='hover:underline' href='/components'>
                     Components
                 </a>
             </li>
             <li>
-                <a className='hover:underline'>
+                <a className='hover:underline' href='/tools'>
                     Tools
                 </a>
             </li>
             <li>
-                <a className='hover:underline'>
+                <a className='hover:underline' href='#facilities'>
                     Facilities
                 </a>
             </li>
             <li>
-                <a className='hover:underline'>
+                <a className='hover:underline' href='#gallery'>
                     Gallery
                 </a>
             </li>
             <li>
-                <a className='hover:underline'>
+                <a className='hover:underline' href='#footer'>
                     Contact
                 </a>
             </li>
