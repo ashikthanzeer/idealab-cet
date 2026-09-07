@@ -1,6 +1,7 @@
 import { client } from '@/sanity/lib/client'
 import { componentsQuery } from '@/sanity/lib/queries'
 import { Nav } from './components/ui/Nav'
+import Link from 'next/link'
 
 type Component = {
   _id: string
@@ -51,11 +52,11 @@ export default async function Home() {
             </p>
 
             <p className='text-white/90 text-normal md:text-lg mt-4 md:mt-6'>A hub for innovation, creativity and hands-on-learning, <br />
-              Transforming ideas into real-worls solutions.</p>
+              Transforming ideas into real-world solutions.</p>
 
             <div className="grid grid-cols-2 md:flex flex-row gap-4 items-center mt-6">
-              <button className='rounded-xl focus-within:ring-primary ring-0 focus-within:ring-offset-2 transition-all font-medium shadow-sm border border-primary/70 px-4 py-2 bg-primary text-white'>View Components</button>
-              <button className='rounded-xl focus-within:ring-primary ring-0 focus-within:ring-offset-2 transition-all font-medium shadow-sm px-4 py-2 border border-neutral-500 text-white'>View Tools</button>
+              <Link href='/components' className='rounded-xl focus-within:ring-primary ring-0 focus-within:ring-offset-2 transition-all font-medium shadow-sm border border-primary/70 px-4 py-2 bg-primary text-white'>View Components</Link>
+              <Link href='/tools' className='rounded-xl focus-within:ring-primary ring-0 focus-within:ring-offset-2 transition-all font-medium shadow-sm px-4 py-2 border border-neutral-500 text-white'>View Tools</Link>
             </div>
           </div>
 
@@ -79,7 +80,7 @@ export default async function Home() {
                   Innovate
                 </p>
                 <p className='text-sm md:text-base text-neutral-300'>
-                  Think. Design, Build,
+                  Think. Design, Build
                 </p>
               </div>
             </div>
@@ -111,7 +112,7 @@ export default async function Home() {
 
         </section>
 
-        <section id="what" className='px-10 py-14'>
+        <section id="about" className='px-10 py-14'>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <p className='text-xl font-semibold uppercase'>
@@ -260,7 +261,7 @@ export default async function Home() {
           <div>
             <div className="flex flex-row items-center justify-between gap-4">
               <h2 className='text-lg uppercase font-semibold'>Available Components</h2>
-              <a href="#" className='inline-flex items-center gap-1 text-primary whitespace-nowrap focus-within:underline'>View All Components
+              <a href="/components" className='inline-flex items-center gap-1 text-primary whitespace-nowrap focus-within:underline'>View All Components
                 <i className="ph ph-arrow-right"></i>
               </a>
             </div>
@@ -313,7 +314,7 @@ export default async function Home() {
           <div>
             <div className="flex flex-row items-center justify-between gap-4">
               <h2 className='text-lg uppercase font-semibold'>Available Tools</h2>
-              <a href="#" className='inline-flex items-center gap-1 text-primary whitespace-nowrap focus-within:underline'>View All Tools
+              <a href="/tools" className='inline-flex items-center gap-1 text-primary whitespace-nowrap focus-within:underline'>View All Tools
                 <i className="ph ph-arrow-right"></i>
               </a>
             </div>
@@ -476,29 +477,29 @@ export default async function Home() {
                 Quick Links
               </p>
               <div className="grid grid-cols-2 gap-y-1 gap-x-4 text-neutral-300 [&>p]:hover:underline">
-                <p>
+                <a href='/'>
                   Home
-                </p>
-                <p>
+                </a>
+                <a href='/#about'>
                   About
-                </p>
-                <p>
+                </a>
+                <a href='/components'>
                   Components
-                </p>
-                <p>
+                </a>
+                <a href='/tools'>
                   Tools
-                </p>
-                <p>
+                </a>
+                <a href='/#facilities'>
                   Facliities
-                </p>
-                <p>
+                </a>
+                <a href='/#gallery'>
                   Gallery
-                </p>
-                <p>
+                </a>
+                <a href='/#footer'>
                   Contact
-                </p>
+                </a>
               </div>
-            </div>
+            </div>  
 
             <div>
               <p className="font-semibold mb-2">

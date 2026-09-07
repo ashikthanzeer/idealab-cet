@@ -11,7 +11,7 @@ function NavList() {
                 </a>
             </li>
             <li>
-                <a className='hover:underline' href='#about'>
+                <a className='hover:underline' href='/#about'>
                     About
                 </a>
             </li>
@@ -26,17 +26,17 @@ function NavList() {
                 </a>
             </li>
             <li>
-                <a className='hover:underline' href='#facilities'>
+                <a className='hover:underline' href='/#facilities'>
                     Facilities
                 </a>
             </li>
             <li>
-                <a className='hover:underline' href='#gallery'>
+                <a className='hover:underline' href='/#gallery'>
                     Gallery
                 </a>
             </li>
             <li>
-                <a className='hover:underline' href='#footer'>
+                <a className='hover:underline' href='/#footer'>
                     Contact
                 </a>
             </li>
