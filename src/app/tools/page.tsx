@@ -74,11 +74,8 @@ export default async function ToolsPage() {
                     description={tool.shortDescription}
                     imageUrl={
                       tool.image
-                        ? urlFor(tool.image)
-                            .width(600)
-                            .height(400)
-                            .url()
-                        : undefined
+                      ? urlFor(tool.image).url()
+                      : undefined
                     }
                     href={
                       tool.slug?.current

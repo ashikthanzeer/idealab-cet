@@ -25,6 +25,11 @@ type Component = {
 export default async function ComponentsPage() {
   const components = await client.fetch<Component[]>(componentsQuery)
 
+  console.log(
+  'COMPONENT LIST DATA:',
+  JSON.stringify(components, null, 2)
+)
+
   return (
     <div className="relative">
       <Nav />
@@ -74,11 +79,8 @@ export default async function ComponentsPage() {
                     description={component.shortDescription}
                     imageUrl={
                       component.image
-                        ? urlFor(component.image)
-                            .width(600)
-                            .height(400)
-                            .url()
-                        : undefined
+                      ? urlFor(component.image).url()
+                      : undefined
                     }
                     href={
                       component.slug?.current

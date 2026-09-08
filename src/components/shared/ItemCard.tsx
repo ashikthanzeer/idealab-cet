@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 
 type ItemCardProps = {
@@ -19,10 +18,9 @@ export default function ItemCard({
       <article className="overflow-hidden rounded-xl border bg-white transition-shadow hover:shadow-md">
         <div className="relative aspect-video overflow-hidden bg-gray-100">
           {imageUrl ? (
-            <Image
+            <img
               src={imageUrl}
               alt={name}
-              fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
           ) : (

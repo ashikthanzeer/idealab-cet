@@ -421,7 +421,7 @@ export default async function Home() {
         <section id='gallery' className='px-10 pb-8'>
           <div className="flex flex-row items-center justify-between gap-4">
             <h2 className='text-lg uppercase font-semibold'>Lab Gallery</h2>
-            <a href="#" className='inline-flex items-center gap-1 text-primary'>View Gallery
+            <a href="/gallery" className='inline-flex items-center gap-1 text-primary'>View Gallery
               <i className="ph ph-arrow-right"></i>
             </a>
           </div>
@@ -492,7 +492,7 @@ export default async function Home() {
                 <a href='/#facilities'>
                   Facliities
                 </a>
-                <a href='/#gallery'>
+                <a href='/gallery'>
                   Gallery
                 </a>
                 <a href='/#footer'>

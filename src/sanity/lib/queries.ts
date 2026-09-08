@@ -90,3 +90,13 @@ export const siteSettingsQuery = defineQuery(`
     logos
   }
 `)
+
+export const galleryQuery = defineQuery(`
+  *[_type == "galleryItem"] | order(order asc) {
+    _id,
+    image,
+    caption,
+    category,
+    order
+  }
+`)

@@ -31,7 +31,7 @@ function NavList() {
                 </a>
             </li>
             <li>
-                <a className='hover:underline' href='/#gallery'>
+                <a className='hover:underline' href='/gallery'>
                     Gallery
                 </a>
             </li>

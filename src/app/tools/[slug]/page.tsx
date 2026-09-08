@@ -22,7 +22,7 @@ type tool = {
   }
   shortDescription?: string
   description?: unknown[]
-  image?: {
+  img?: {
     _type: string
     asset: {
       _ref: string
@@ -113,10 +113,9 @@ export default async function toolDetailPage({ params }: Props) {
             {/* Image */}
             <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-neutral-300 bg-white">
               {imageUrl ? (
-                <Image
+                <img
                   src={imageUrl}
                   alt={tool.name}
-                  fill
                   className="object-cover"
                 />
               ) : (
@@ -190,10 +189,9 @@ export default async function toolDetailPage({ params }: Props) {
                     key={index}
                     className="relative aspect-video overflow-hidden rounded-lg border border-neutral-300"
                   >
-                    <Image
+                    <img
                       src={urlFor(image).width(600).height(400).url()}
                       alt={`${tool.name} - Image ${index + 1}`}
-                      fill
                       className="object-cover"
                     />
                   </div>

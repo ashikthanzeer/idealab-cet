@@ -3,7 +3,6 @@ import { componentBySlugQuery } from '@/sanity/lib/queries'
 import { urlFor } from '@/sanity/lib/image'
 import { Nav } from '../../components/ui/Nav'
 import Link from 'next/link'
-import Image from 'next/image'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -80,6 +79,9 @@ export default async function ComponentDetailPage({ params }: Props) {
     ? urlFor(component.image).width(1200).height(800).url()
     : undefined
 
+console.log('IMAGE SOURCE:', JSON.stringify(component.image, null, 2))
+console.log('IMAGE URL:', imageUrl)
+
   return (
     <div className="relative">
       <Nav />
@@ -113,10 +115,9 @@ export default async function ComponentDetailPage({ params }: Props) {
             {/* Image */}
             <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-neutral-300 bg-white">
               {imageUrl ? (
-                <Image
+                <img
                   src={imageUrl}
                   alt={component.name}
-                  fill
                   className="object-cover"
                 />
               ) : (
@@ -190,10 +191,9 @@ export default async function ComponentDetailPage({ params }: Props) {
                     key={index}
                     className="relative aspect-video overflow-hidden rounded-lg border border-neutral-300"
                   >
-                    <Image
+                    <img
                       src={urlFor(image).width(600).height(400).url()}
                       alt={`${component.name} - Image ${index + 1}`}
-                      fill
                       className="object-cover"
                     />
                   </div>
