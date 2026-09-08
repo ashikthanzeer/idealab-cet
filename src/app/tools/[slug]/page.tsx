@@ -3,7 +3,6 @@ import { toolBySlugQuery } from '@/sanity/lib/queries'
 import { urlFor } from '@/sanity/lib/image'
 import { Nav } from '../../components/ui/Nav'
 import Link from 'next/link'
-import Image from 'next/image'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -22,7 +21,7 @@ type tool = {
   }
   shortDescription?: string
   description?: unknown[]
-  img?: {
+  image?: {
     _type: string
     asset: {
       _ref: string
