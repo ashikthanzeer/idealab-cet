@@ -1,10 +1,11 @@
 import { client } from '@/sanity/lib/client'
 import { componentsQuery } from '@/sanity/lib/queries'
-import { urlFor } from '@/sanity/lib/image'
-import { Nav } from '../components/ui/Nav'
-import ItemCard from '@/components/shared/ItemCard'
 
-type Component = {
+import { Nav } from '../components/ui/Nav'
+
+import ComponentsGrid from '@/components/ComponentsGrid'
+
+export type Component = {
   _id: string
   name: string
   slug?: {
@@ -70,33 +71,7 @@ export default async function ComponentsPage() {
               </p>
             </div>
 
-            {components.length > 0 ? (
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-                {components.map((component) => (
-                  <ItemCard
-                    key={component._id}
-                    name={component.name}
-                    description={component.shortDescription}
-                    imageUrl={
-                      component.image
-                      ? urlFor(component.image).url()
-                      : undefined
-                    }
-                    href={
-                      component.slug?.current
-                        ? `/components/${component.slug.current}`
-                        : '#'
-                    }
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="border border-neutral-300 rounded-lg bg-white p-10 text-center">
-                <p className="font-medium text-neutral-600">
-                  No components are currently available.
-                </p>
-              </div>
-            )}
+<ComponentsGrid components={components} />
           </div>
         </section>
 

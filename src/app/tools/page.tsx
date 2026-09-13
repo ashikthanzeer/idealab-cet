@@ -1,10 +1,9 @@
 import { client } from '@/sanity/lib/client'
 import { toolsQuery } from '@/sanity/lib/queries'
-import { urlFor } from '@/sanity/lib/image'
 import { Nav } from '../components/ui/Nav'
-import ItemCard from '@/components/shared/ItemCard'
+import ToolsGrid from '@/components/ToolsGrid'
 
-type Tool = {
+export type Tool = {
   _id: string
   name: string
   slug?: {
@@ -65,33 +64,7 @@ export default async function ToolsPage() {
               </p>
             </div>
 
-            {tools.length > 0 ? (
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-                {tools.map((tool) => (
-                  <ItemCard
-                    key={tool._id}
-                    name={tool.name}
-                    description={tool.shortDescription}
-                    imageUrl={
-                      tool.image
-                      ? urlFor(tool.image).url()
-                      : undefined
-                    }
-                    href={
-                      tool.slug?.current
-                        ? `/tools/${tool.slug.current}`
-                        : '#'
-                    }
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-lg border border-neutral-300 bg-white p-10 text-center">
-                <p className="font-medium text-neutral-600">
-                  No tools are currently available.
-                </p>
-              </div>
-            )}
+          <ToolsGrid tools={tools} />
           </div>
         </section>
 
