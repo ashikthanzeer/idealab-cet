@@ -51,7 +51,7 @@ export function Nav() {
         <>
 
             {menuOpen &&
-                <div className="absolute top-22 w-full">
+                <div className="absolute top-22 w-full z-50">
                     <div className="mx-4 bg-[#030919] border border-neutral-800 rounded-lg p-4">
                         <nav>
                             <ul className='flex lg:hidden flex-col gap-4 text-lg text-neutral-200 font-medium'>
@@ -63,7 +63,7 @@ export function Nav() {
             }
 
 
-            <header className='sticky top-0 bg-[#030919] flex flex-row items-center px-4 py-2 justify-between'>
+            <header className='sticky top-0 z-50 bg-[#030919] flex flex-row items-center px-4 py-2 justify-between'>
                 <div className="flex flex-row gap-4">
                     <img src="/icon.png" className='block size-16 md:size-20' alt="AICTE IDEA LAB, CET Icon" />
                     <a className='block' href="https://cet.ac.in">
