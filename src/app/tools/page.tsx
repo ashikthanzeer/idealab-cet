@@ -30,7 +30,7 @@ export default async function ToolsPage() {
 
       <main>
         {/* Page Header */}
-        <section className="bg-secondary px-10 py-14">
+        <section className="bg-secondary px-6 py-8 md:px-10 md:py-20">
           <div className="mx-auto max-w-7xl">
             <p className="text-sm font-semibold uppercase text-indigo-200">
               IDEA LAB CET
@@ -51,7 +51,7 @@ export default async function ToolsPage() {
         </section>
 
         {/* Tools */}
-        <section className="px-10 py-14">
+        <section className="px-6 py-8 md:px-10 md:py-14">
           <div className="mx-auto max-w-7xl">
             <div className="mb-8">
               <p className="text-lg font-semibold uppercase">
@@ -69,7 +69,7 @@ export default async function ToolsPage() {
         </section>
 
         {/* Bottom CTA */}
-        <section className="px-10 pb-8">
+        <section className="px-6 pb-8 md:px-10 md:pb-8">
           <div className="mx-auto max-w-7xl rounded-xl bg-secondary px-6 py-6 md:px-8 md:py-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="flex flex-row items-center gap-4">

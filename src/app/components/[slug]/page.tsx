@@ -53,7 +53,7 @@ export default async function ComponentDetailPage({ params }: Props) {
       <>
         <Nav />
 
-        <main className="px-10 py-20">
+        <main className="px-6 py-8 md:px-10 md:py-20">
           <div className="mx-auto max-w-7xl text-center">
             <h1 className="text-3xl font-bold text-secondary">
               Component Not Found
@@ -88,7 +88,7 @@ console.log('IMAGE URL:', imageUrl)
 
       <main>
         {/* Header */}
-        <section className="bg-secondary px-10 py-12">
+        <section className="bg-secondary px-6 py-8 md:px-10 md:py-12">
           <div className="mx-auto max-w-7xl">
             <Link
               href="/components"
@@ -110,7 +110,7 @@ console.log('IMAGE URL:', imageUrl)
         </section>
 
         {/* Main Content */}
-        <section className="px-10 py-14">
+        <section className="px-6 py-8 md:px-10 md:py-14">
           <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 lg:grid-cols-2">
             {/* Image */}
             <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-neutral-300 bg-white">
@@ -204,7 +204,7 @@ console.log('IMAGE URL:', imageUrl)
         )}
 
         {/* Bottom CTA */}
-        <section className="px-10 pb-8">
+        <section className="px-6 pb-8 md:px-10 md:pb-8">
           <div className="mx-auto max-w-7xl rounded-xl bg-secondary px-6 py-7">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>

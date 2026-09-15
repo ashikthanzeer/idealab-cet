@@ -29,7 +29,7 @@ export default async function Home() {
       <Nav />
 
       <main className="">
-        <section id="hero" className="px-10 py-14 bg-secondary">
+        <section id="hero" className="px-6 py-8 md:px-10 md:py-14 bg-secondary">
           <div className="">
             <span className="uppercase font-semibold text-indigo-200">
               COLLEGE OF ENGINEERING TRIVANDRUM
@@ -48,7 +48,7 @@ export default async function Home() {
               Transforming ideas into real-world solutions.
             </p>
 
-            <div className="grid grid-cols-2 md:flex flex-row gap-4 items-center mt-6">
+            <div className="grid grid-cols-2 md:flex flex-row gap-4 items-center mt-6 text-center whitespace-nowrap">
               <Link
                 href="/components"
                 className="rounded-xl focus-within:ring-primary ring-0 focus-within:ring-offset-2 transition-all font-medium shadow-sm border border-primary/70 px-4 py-2 bg-primary text-white"
@@ -107,7 +107,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section id="about" className="px-10 py-14">
+        <section id="about" className="px-6 py-8 md:px-10 md:py-14">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <p className="text-xl font-semibold uppercase">About IDEA Lab</p>
@@ -243,7 +243,7 @@ export default async function Home() {
 
         <section
           id="catalogue"
-          className="grid grid-cols-1 lg:grid-cols-2 gap-8 px-10 pb-8"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8 px-6 pb-8 md:px-10 md:pb-8"
         >
           <div>
             <div className="flex flex-row items-center justify-between gap-4">
@@ -280,7 +280,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section id="facilities" className="px-10 pb-8">
+        <section id="facilities" className="px-6 py-8 md:px-10 md:pb-8">
           <h2 className="text-lg uppercase font-semibold">
             Facilities & Capabilities
           </h2>
@@ -336,7 +336,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section id="gallery" className="px-10 pb-8">
+        <section id="gallery" className="px-6 py-8 md:px-10 md:pb-8">
           <div className="flex flex-row items-center justify-between gap-4">
             <h2 className="text-lg uppercase font-semibold">Lab Gallery</h2>
             <a
@@ -351,7 +351,7 @@ export default async function Home() {
       <GallaryGrid galleryItems={galleryItems} />
         </section>
 
-        <section id="ready" className="px-10 pb-8">
+        <section id="ready" className="px-6 py-8 md:px-10 md:pb-8">
           <div className="px-6 md:px-6 py-6 md:py-8 bg-secondary rounded-xl flex flex-col md:flex-row md:items-center justify-between">
             <div className="flex flex-row items-center gap-4">
               <i className="text-white p-3 rounded-lg bg-primary ph ph-books text-3xl"></i>
@@ -369,88 +369,6 @@ export default async function Home() {
               Contact Us
             </button>
           </div>
-        </section>
-
-        <section
-          id="footer"
-          className="px-10 md:px-20 bg-secondary text-white py-10"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            <div className="flex flex-row gap-4">
-              <img
-                src="/icon.png"
-                className="block size-20"
-                alt="AICTE IDEA LAB, CET Icon"
-              />
-              <a className="block" href="https://cet.ac.in">
-                <img src="/cet.png" className="block size-20" alt="CET Icon" />
-              </a>
-            </div>
-
-            <div>
-              <p className="font-semibold mb-2">AICTE IDEA Lab CET</p>
-              <p className="text-neutral-300">
-                Empowering innovators of today to build a better tomorrow.
-              </p>
-            </div>
-
-            <div>
-              <p className="font-semibold mb-2">Quick Links</p>
-              <div className="grid grid-cols-2 gap-y-1 gap-x-4 text-neutral-300 [&>p]:hover:underline">
-                <a href="/">Home</a>
-                <a href="/#about">About</a>
-                <a href="/components">Components</a>
-                <a href="/tools">Tools</a>
-                <a href="/#facilities">Facliities</a>
-                <a href="/gallery">Gallery</a>
-                <a href="/#footer">Contact</a>
-              </div>
-            </div>
-
-            <div>
-              <p className="font-semibold mb-2">Contact Us</p>
-
-              <div className="flex flex-col gap-1 text-neutral-300">
-                <div className="inline-flex item-center gap-1.5">
-                  <i className="ph ph-map-pin text-lg pt-1"></i>
-                  <p>
-                    College Of Engineering Trivandrum Thiruvananthapuram,
-                    Kerala, India
-                  </p>
-                </div>
-                <div className="inline-flex item-center gap-1.5">
-                  <i className="ph ph-envelope text-lg pt-1"></i>
-                  <p>idealab@cet.ac.in</p>
-                </div>
-                <div className="inline-flex item-center gap-1.5">
-                  <i className="ph ph-phone text-lg pt-1"></i>
-                  <p>Set number here</p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <p className="font-semibold mb-2">Follow Us</p>
-
-              <div className="flex flex-row gap-2 text-3xl text-neutral-300">
-                <a href="#">
-                  <i className="ph ph-instagram-logo"></i>
-                </a>
-                <a href="#">
-                  <i className="ph ph-linkedin-logo"></i>
-                </a>
-                <a href="#">
-                  <i className="ph ph-youtube-logo"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <p className="text-xs text-neutral-300 mt-6">
-            Copyright <i className="ph ph-copyright inline-block"></i>{" "}
-            {new Date().getFullYear()} IIC Developers Team, College Of
-            Engineering Trivandrum
-          </p>
         </section>
       </main>
     </div>

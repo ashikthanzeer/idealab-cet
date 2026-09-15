@@ -53,10 +53,10 @@ export default async function toolDetailPage({ params }: Props) {
       <>
         <Nav />
 
-        <main className="px-10 py-20">
+        <main className="px-6 py-8 md:px-10 md:py-20">
           <div className="mx-auto max-w-7xl text-center">
             <h1 className="text-3xl font-bold text-secondary">
-              tool Not Found
+              Tool Not Found
             </h1>
 
             <p className="mt-3 text-neutral-600">
@@ -85,7 +85,7 @@ export default async function toolDetailPage({ params }: Props) {
 
       <main>
         {/* Header */}
-        <section className="bg-secondary px-10 py-12">
+        <section className="bg-secondary px-6 py-8 md:px-10 md:py-12">
           <div className="mx-auto max-w-7xl">
             <Link
               href="/tools"
