@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link";
 import { useState } from "react";
 
 function NavList() {
@@ -65,7 +66,9 @@ export function Nav() {
 
             <header className='sticky top-0 z-50 bg-[#030919] flex flex-row items-center px-4 py-2 justify-between'>
                 <div className="flex flex-row gap-4">
-                    <img src="/icon.png" className='block size-16 md:size-20' alt="AICTE IDEA LAB, CET Icon" />
+                    <Link href="/">
+                        <img src="/icon.png" className='block size-16 md:size-20' alt="AICTE IDEA LAB, CET Icon" />
+                    </Link>
                     <a className='block' href="https://cet.ac.in">
                         <img src="/cet.png" className='block size-16 md:size-20' alt="CET Icon" />
                     </a>
