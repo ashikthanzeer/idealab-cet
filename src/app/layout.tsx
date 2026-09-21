@@ -104,6 +104,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </div>
             </div>
           </div>
+          </div>
 
           <p className="text-xs text-neutral-300 mt-6">
             Copyright <i className="ph ph-copyright inline-block"></i>{" "}
