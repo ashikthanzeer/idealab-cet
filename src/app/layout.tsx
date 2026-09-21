@@ -88,35 +88,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <div className="flex flex-col gap-1 text-neutral-300">
                 <div className="inline-flex item-center gap-1.5">
                   <i className="ph ph-map-pin text-lg pt-1"></i>
-                  <p>
+                  <a href="https://share.google/uXFEpax5F4q5XBuM0>
                     College Of Engineering Trivandrum Thiruvananthapuram,
                     Kerala, India
-                  </p>
+                  </a>
                 </div>
                 <div className="inline-flex item-center gap-1.5">
                   <i className="ph ph-envelope text-lg pt-1"></i>
-                  <p>idealab@cet.ac.in</p>
+                  <a href="mailto:iic@cet.ac.in">iic@cet.ac.in</a>
                 </div>
                 <div className="inline-flex item-center gap-1.5">
                   <i className="ph ph-phone text-lg pt-1"></i>
-                  <p>Set number here</p>
+                  <a href="tel:9447525215">9447525215</a>
                 </div>
-              </div>
-            </div>
-
-            <div>
-              <p className="font-semibold mb-2">Follow Us</p>
-
-              <div className="flex flex-row gap-2 text-3xl text-neutral-300">
-                <a href="#">
-                  <i className="ph ph-instagram-logo"></i>
-                </a>
-                <a href="#">
-                  <i className="ph ph-linkedin-logo"></i>
-                </a>
-                <a href="#">
-                  <i className="ph ph-youtube-logo"></i>
-                </a>
               </div>
             </div>
           </div>
