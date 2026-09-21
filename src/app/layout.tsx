@@ -88,7 +88,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <div className="flex flex-col gap-1 text-neutral-300">
                 <div className="inline-flex item-center gap-1.5">
                   <i className="ph ph-map-pin text-lg pt-1"></i>
-                  <a href="https://share.google/uXFEpax5F4q5XBuM0>
+                  <a href="https://share.google/uXFEpax5F4q5XBuM0">
                     College Of Engineering Trivandrum Thiruvananthapuram,
                     Kerala, India
                   </a>
@@ -103,7 +103,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 </div>
               </div>
             </div>
-          </div>
           </div>
 
           <p className="text-xs text-neutral-300 mt-6">
