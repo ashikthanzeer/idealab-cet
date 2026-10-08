@@ -82,10 +82,10 @@ export function Nav() {
                     </nav>
 
                     <div className='flex flex-row items-center gap-4'>
-                        <button
-                            className='focus-within:ring-primary ring-0 focus-within:ring-offset-2 transition-all bg-primary text-white px-3 md:px-4 py-1 lg:py-2 rounded-md'>
+                        <Link
+                            href="https://forms.gle/T7pqdreYZC7cUopA9" className='focus-within:ring-primary ring-0 focus-within:ring-offset-2 transition-all bg-primary text-white px-3 md:px-4 py-1 lg:py-2 rounded-md' target="_blank">
                             Visit the Lab
-                        </button>
+                        </Link>
                         <button className="lg:hidden" onClick={() => {
                             setMenuOpen(!menuOpen);
                         }}>
