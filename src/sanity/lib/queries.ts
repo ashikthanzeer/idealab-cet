@@ -1,10 +1,11 @@
-import {defineQuery} from 'next-sanity'
+import { defineQuery } from "next-sanity";
 
 /* ─────────────────────────────────────────
    Components
    ───────────────────────────────────────── */
 
-export const componentsQuery = defineQuery(`
+export const componentsQuery = (limit?: number | undefined) =>
+  defineQuery(`
   *[_type == "component"] | order(order asc) {
     _id,
     name,
@@ -13,8 +14,8 @@ export const componentsQuery = defineQuery(`
     image,
     featured,
     order
-  }
-`)
+  }${limit ? `[0...${limit}]` : ""}
+`);
 
 export const componentBySlugQuery = defineQuery(`
   *[
@@ -32,13 +33,13 @@ export const componentBySlugQuery = defineQuery(`
     featured,
     order
   }
-`)
+`);
 
 /* ─────────────────────────────────────────
    Tools
    ───────────────────────────────────────── */
 
-export const toolsQuery = defineQuery(`
+export const toolsQuery = (limit?: number | undefined) => defineQuery(`
   *[_type == "tool"] | order(order asc) {
     _id,
     name,
@@ -47,8 +48,8 @@ export const toolsQuery = defineQuery(`
     image,
     featured,
     order
-  }
-`)
+  }${limit ? `[0...${limit}]` : ""}
+`);
 
 export const toolBySlugQuery = defineQuery(`
   *[
@@ -66,7 +67,7 @@ export const toolBySlugQuery = defineQuery(`
     featured,
     order
   }
-`)
+`);
 
 /* ─────────────────────────────────────────
    Site Settings
@@ -89,14 +90,14 @@ export const siteSettingsQuery = defineQuery(`
     address,
     logos
   }
-`)
+`);
 
-export const galleryQuery = defineQuery(`
+export const galleryQuery =(limit?: number | undefined) =>  defineQuery(`
   *[_type == "galleryItem"] | order(order asc) {
     _id,
     image,
     caption,
     category,
     order
-  }
-`)
+  }${limit ? `[0...${limit}]` : ""}
+`);

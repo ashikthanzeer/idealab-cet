@@ -20,7 +20,7 @@ export type GalleryItem = {
 }
 
 export default async function GalleryPage() {
-  const galleryItems = await client.fetch<GalleryItem[]>(galleryQuery)
+  const galleryItems = await client.fetch<GalleryItem[]>(galleryQuery())
 
   return (
     <main className="min-h-screen bg-[#FDFDFD]">
