@@ -374,9 +374,9 @@ export default async function Home() {
               </div>
             </div>
 
-            <button className="focus-within:ring-primary ring-0 focus-within:ring-offset-2 mt-6 md:mt-0 rounded-xl shadow-sm border border-primary/70 px-4 py-2 bg-primary text-white font-semibold">
+            <Link href="/#footer" className="focus-within:ring-primary ring-0 focus-within:ring-offset-2 mt-6 md:mt-0 rounded-xl shadow-sm border border-primary/70 px-4 py-2 bg-primary text-white font-semibold">
               Contact Us
-            </button>
+            </Link>
           </div>
         </section>
       </main>
