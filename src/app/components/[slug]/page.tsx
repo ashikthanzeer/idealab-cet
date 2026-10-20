@@ -1,4 +1,4 @@
-import { client } from '@/sanity/lib/client'
+import { sanityFetch } from '@/sanity/lib/live'
 import { componentBySlugQuery } from '@/sanity/lib/queries'
 import { urlFor } from '@/sanity/lib/image'
 import { Nav } from '../../components/ui/Nav'
@@ -43,10 +43,12 @@ type Component = {
 export default async function ComponentDetailPage({ params }: Props) {
   const { slug } = await params
 
-  const component = await client.fetch<Component | null>(
-    componentBySlugQuery,
-    { slug }
-  )
+  const { data } = await sanityFetch({
+    query: componentBySlugQuery,
+    params: { slug },
+  })
+
+  const component = data as Component | null
 
   if (!component) {
     return (

@@ -1,4 +1,4 @@
-import { client } from '@/sanity/lib/client'
+import { sanityFetch } from '@/sanity/lib/live'
 import { toolBySlugQuery } from '@/sanity/lib/queries'
 import { urlFor } from '@/sanity/lib/image'
 import { Nav } from '../../components/ui/Nav'
@@ -43,10 +43,12 @@ type tool = {
 export default async function toolDetailPage({ params }: Props) {
   const { slug } = await params
 
-  const tool = await client.fetch<tool | null>(
-    toolBySlugQuery,
-    { slug }
-  )
+  const { data } = await sanityFetch({
+    query: toolBySlugQuery,
+    params: { slug },
+  })
+
+  const tool = data as tool | null
 
   if (!tool) {
     return (

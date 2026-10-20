@@ -1,4 +1,4 @@
-import { client } from '@/sanity/lib/client'
+import { sanityFetch } from '@/sanity/lib/live'
 import { toolsQuery } from '@/sanity/lib/queries'
 import { Nav } from '../components/ui/Nav'
 import ToolsGrid from '@/components/ToolsGrid'
@@ -22,7 +22,8 @@ export type Tool = {
 }
 
 export default async function ToolsPage() {
-  const tools = await client.fetch<Tool[]>(toolsQuery())
+  const { data } = await sanityFetch({ query: toolsQuery() })
+  const tools = data as Tool[]
 
   return (
     <div className="relative">
