@@ -1,4 +1,4 @@
-import { client } from '@/sanity/lib/client'
+import { sanityFetch } from '@/sanity/lib/live'
 import { galleryQuery } from '@/sanity/lib/queries'
 
 import { Nav } from '../components/ui/Nav'
@@ -20,7 +20,8 @@ export type GalleryItem = {
 }
 
 export default async function GalleryPage() {
-  const galleryItems = await client.fetch<GalleryItem[]>(galleryQuery())
+  const { data } = await sanityFetch({ query: galleryQuery() })
+  const galleryItems = data as GalleryItem[]
 
   return (
     <main className="min-h-screen bg-[#FDFDFD]">

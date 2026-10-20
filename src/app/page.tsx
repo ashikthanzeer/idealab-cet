@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { client } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/live";
 import {
   componentsQuery,
   galleryQuery,
@@ -18,9 +18,18 @@ import  ComponentsGrid from "@/components/ComponentsGrid";
 import GallaryGrid from "@/components/GallaryGrid";
 
 export default async function Home() {
-  const components = await client.fetch<Component[]>(componentsQuery(3));
-  const tools = await client.fetch<Tool[]>(toolsQuery(3));
-  const galleryItems = await client.fetch<GalleryItem[]>(galleryQuery(3));
+  const [
+    { data: componentData },
+    { data: toolData },
+    { data: galleryData },
+  ] = await Promise.all([
+    sanityFetch({ query: componentsQuery(3) }),
+    sanityFetch({ query: toolsQuery(3) }),
+    sanityFetch({ query: galleryQuery(3) }),
+  ]);
+  const components = componentData as Component[];
+  const tools = toolData as Tool[];
+  const galleryItems = galleryData as GalleryItem[];
 
   return (
     <div className="relative">

@@ -1,4 +1,4 @@
-import { client } from '@/sanity/lib/client'
+import { sanityFetch } from '@/sanity/lib/live'
 import { componentsQuery } from '@/sanity/lib/queries'
 
 import { Nav } from '../components/ui/Nav'
@@ -24,7 +24,8 @@ export type Component = {
 }
 
 export default async function ComponentsPage() {
-  const components = await client.fetch<Component[]>(componentsQuery())
+  const { data } = await sanityFetch({ query: componentsQuery() })
+  const components = data as Component[]
 
   console.log(
   'COMPONENT LIST DATA:',
