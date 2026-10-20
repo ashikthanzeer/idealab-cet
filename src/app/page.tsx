@@ -18,9 +18,9 @@ import  ComponentsGrid from "@/components/ComponentsGrid";
 import GallaryGrid from "@/components/GallaryGrid";
 
 export default async function Home() {
-  const components = await client.fetch<Component[]>(componentsQuery);
-  const tools = await client.fetch<Tool[]>(toolsQuery);
-  const galleryItems = await client.fetch<GalleryItem[]>(galleryQuery);
+  const components = await client.fetch<Component[]>(componentsQuery(3));
+  const tools = await client.fetch<Tool[]>(toolsQuery(3));
+  const galleryItems = await client.fetch<GalleryItem[]>(galleryQuery(3));
 
   return (
     <div className="relative">
@@ -246,7 +246,7 @@ export default async function Home() {
           className="grid grid-cols-1 lg:grid-cols-2 gap-8 px-6 pb-8 md:px-10 md:pb-8"
         >
           <div>
-            <div className="flex flex-row items-center justify-between gap-4">
+            <div className="flex flex-row items-center justify-between gap-4 mb-2">
               <h2 className="text-lg uppercase font-semibold">
                 Available Components
               </h2>
@@ -259,11 +259,11 @@ export default async function Home() {
               </a>
             </div>
 
-            <ComponentsGrid components={components} />
+            <ComponentsGrid components={components.slice(0,3)} />
           </div>
 
           <div>
-            <div className="flex flex-row items-center justify-between gap-4">
+            <div className="flex flex-row items-center justify-between gap-4 mb-2">
               <h2 className="text-lg uppercase font-semibold">
                 Available Tools
               </h2>
@@ -276,7 +276,7 @@ export default async function Home() {
               </a>
             </div>
 
-             <ToolsGrid tools={tools} />
+             <ToolsGrid tools={tools.slice(0,3)} />
           </div>
         </section>
 
@@ -348,7 +348,7 @@ export default async function Home() {
             </a>
           </div>
 
-      <GallaryGrid galleryItems={galleryItems} />
+      <GallaryGrid galleryItems={galleryItems.slice(0,3)} />
         </section>
 
         <section id="ready" className="px-6 py-8 md:px-10 md:pb-8">

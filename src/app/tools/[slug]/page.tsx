@@ -110,19 +110,21 @@ export default async function toolDetailPage({ params }: Props) {
         <section className="px-10 py-14">
           <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 lg:grid-cols-2">
             {/* Image */}
-            <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-neutral-300 bg-white">
-              {imageUrl ? (
-                <img
-                  src={imageUrl}
-                  alt={tool.name}
-                  className="object-cover"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center text-neutral-400">
-                  No image available
-                </div>
-              )}
-            </div>
+            {imageUrl && (
+              <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-neutral-300 bg-white">
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={tool.name}
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-neutral-400">
+                    No image available
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Description */}
             <div>
@@ -131,7 +133,7 @@ export default async function toolDetailPage({ params }: Props) {
               </p>
 
               {tool.description &&
-              tool.description.length > 0 ? (
+                tool.description.length > 0 ? (
                 <div className="mt-4 space-y-4 text-base font-medium leading-7 text-neutral-700">
                   {/* Rich text rendering will be added here */}
                   <p>{tool.shortDescription}</p>

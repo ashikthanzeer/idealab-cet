@@ -79,8 +79,8 @@ export default async function ComponentDetailPage({ params }: Props) {
     ? urlFor(component.image).width(1200).height(800).url()
     : undefined
 
-console.log('IMAGE SOURCE:', JSON.stringify(component.image, null, 2))
-console.log('IMAGE URL:', imageUrl)
+  console.log('IMAGE SOURCE:', JSON.stringify(component.image, null, 2))
+  console.log('IMAGE URL:', imageUrl)
 
   return (
     <div className="relative">
@@ -112,20 +112,21 @@ console.log('IMAGE URL:', imageUrl)
         {/* Main Content */}
         <section className="px-6 py-8 md:px-10 md:py-14">
           <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 lg:grid-cols-2">
-            {/* Image */}
-            <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-neutral-300 bg-white">
-              {imageUrl ? (
-                <img
-                  src={imageUrl}
-                  alt={component.name}
-                  className="object-cover"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center text-neutral-400">
-                  No image available
-                </div>
-              )}
-            </div>
+            {imageUrl && (
+              <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-neutral-300 bg-white">
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={component.name}
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-neutral-400">
+                    No image available
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Description */}
             <div>
@@ -134,7 +135,7 @@ console.log('IMAGE URL:', imageUrl)
               </p>
 
               {component.description &&
-              component.description.length > 0 ? (
+                component.description.length > 0 ? (
                 <div className="mt-4 space-y-4 text-base font-medium leading-7 text-neutral-700">
                   {/* Rich text rendering will be added here */}
                   <p>{component.shortDescription}</p>

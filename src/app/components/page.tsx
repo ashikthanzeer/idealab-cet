@@ -24,7 +24,7 @@ export type Component = {
 }
 
 export default async function ComponentsPage() {
-  const components = await client.fetch<Component[]>(componentsQuery)
+  const components = await client.fetch<Component[]>(componentsQuery())
 
   console.log(
   'COMPONENT LIST DATA:',

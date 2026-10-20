@@ -22,7 +22,7 @@ export type Tool = {
 }
 
 export default async function ToolsPage() {
-  const tools = await client.fetch<Tool[]>(toolsQuery)
+  const tools = await client.fetch<Tool[]>(toolsQuery())
 
   return (
     <div className="relative">
