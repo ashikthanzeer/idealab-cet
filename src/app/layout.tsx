@@ -91,7 +91,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <div className="flex flex-col gap-1 text-neutral-300">
                 <div className="inline-flex item-center gap-1.5">
                   <i className="ph ph-map-pin text-lg pt-1"></i>
-                  <a href="google.com/maps/place/College+of+Engineering+Trivandrum+(CET)/data=!4m2!3m1!1s0x0:0x98324eb5aafb3778?sa=X&ved=1t:2428&ictx=111" target="_blank">
+                  <a href="https://google.com/maps/place/College+of+Engineering+Trivandrum+(CET)/data=!4m2!3m1!1s0x0:0x98324eb5aafb3778?sa=X&ved=1t:2428&ictx=111" target="_blank">
                     College Of Engineering Trivandrum Thiruvananthapuram,
                     Kerala, India
                   </a>
