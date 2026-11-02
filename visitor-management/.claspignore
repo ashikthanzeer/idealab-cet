@@ -1,0 +1,15 @@
+# Clasp ignore patterns
+# Only push application scripts and manifest to Google Apps Script
+
+**/**
+!*.js
+!*.gs
+!appsscript.json
+
+# Explicitly ignore documentation and repository configs
+docs/**
+README.md
+.clasp.json
+.clasprc.json
+.git/**
+.gitignore
