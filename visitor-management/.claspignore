@@ -8,8 +8,13 @@
 
 # Explicitly ignore documentation and repository configs
 docs/**
+tests/**
 README.md
+TEST_CASES.md
 .clasp.json
+.clasp*.json
+*.template
 .clasprc.json
 .git/**
 .gitignore
+

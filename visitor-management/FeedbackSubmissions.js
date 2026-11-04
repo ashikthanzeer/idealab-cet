@@ -71,6 +71,9 @@ function generateFeedbackId() {
  * Processes a newly submitted feedback response.
  */
 function onFeedbackSubmitted(e) {
+  // Fail-closed environment validation before acquiring lock or modifying resources
+  getValidatedEnvironmentConfig();
+
   const lock = LockService.getScriptLock();
 
   if (!lock.tryLock(10000)) {
@@ -208,8 +211,19 @@ function onFeedbackSubmitted(e) {
     const visitStatusColumn =
       visitHeaders[normalizeFeedbackHeader("Visit Status")];
 
-    const visitStatus =
-      visitRecord[visitStatusColumn - 1];
+    if (!visitStatusColumn) {
+      throw new Error("Missing Visit Status column in Visit Register.");
+    }
+
+    const visitStatus = String(visitRecord[visitStatusColumn - 1] || "").trim().toUpperCase();
+
+    // 1. Feedback Eligibility: strictly require COMPLETED status
+    if (visitStatus !== CONFIG.VISIT_STATUS.COMPLETED) {
+      throw new Error(
+        `Feedback submission rejected: Visit ${visitId} status is '${visitStatus || "EMPTY"}'. ` +
+        `Feedback can only be submitted for visits marked '${CONFIG.VISIT_STATUS.COMPLETED}'.`
+      );
+    }
 
     // Validate visitor identity against Visit Register.
 
@@ -392,6 +406,7 @@ const consent = String(
       matchingVisit.sheetRow,
       feedbackStatusColumn
     ).setValue(CONFIG.FEEDBACK_STATUS.PENDING_REVIEW);
+    SpreadsheetApp.flush();
 
     writeSystemLog(
       visitId,
@@ -422,6 +437,9 @@ const consent = String(
  * Installs the Feedback Spreadsheet submission trigger.
  */
 function installFeedbackSubmissionTrigger() {
+  // Fail-closed environment validation
+  getValidatedEnvironmentConfig();
+
   const handler = "onFeedbackSubmitted";
 
   ScriptApp.getProjectTriggers().forEach(trigger => {

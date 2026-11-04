@@ -53,11 +53,24 @@ function writeSystemLog(visitId, operation, result, details, error) {
 
 
 /**
- * Generate a unique Visit ID.
+ * Generate a unique Visit ID with durable reconciliation against Visit Register.
  *
  * Example: ILV-20261031-0001
+ *
+ * Fail-Closed Guarantees:
+ * 1. Requires access to the durable Visit Register; throws error if inaccessible.
+ * 2. Requires the "Visit ID" column to exist in Visit Register; throws error if missing.
+ * 3. Inspects all existing Visit IDs for today to establish the durable sequence baseline.
+ * 4. Compares against Script Properties counter and takes the maximum to prevent regressions.
+ * 5. Advances sequentially and guarantees candidate ID is not already present in the sheet.
+ * 6. Handles 4-digit and 5-digit counters, malformed IDs, and invalid property values safely.
+ * 7. Never uses Script Properties as the sole source of truth; fails closed if the sheet cannot be read.
+ *
+ * @param {GoogleAppsScript.Spreadsheet.Sheet} [sheet] Optional pre-opened Visit Register sheet
+ * @returns {string} Reconciled, guaranteed unique Visit ID
+ * @throws {Error} If Visit Register cannot be accessed, Visit ID column is missing, or sheet read fails
  */
-function generateVisitId() {
+function generateVisitId(sheet) {
   const properties = PropertiesService.getScriptProperties();
 
   const date = Utilities.formatDate(
@@ -66,13 +79,74 @@ function generateVisitId() {
     "yyyyMMdd"
   );
 
+  const prefix = "ILV-" + date + "-";
   const key = "VISIT_COUNTER_" + date;
 
-  const counter = Number(properties.getProperty(key) || 0) + 1;
+  // 1. Fail closed if Visit Register is inaccessible
+  const registerSheet = sheet || getPrimarySheet(CONFIG.SHEETS.VISIT_REGISTER);
+  if (!registerSheet) {
+    throw new Error("Cannot generate Visit ID: Visit Register sheet is inaccessible.");
+  }
 
+  // 2. Fail closed if Visit ID column cannot be identified
+  const headers = getHeaderMap(registerSheet);
+  const visitIdCol = headers["Visit ID"];
+  if (!visitIdCol || !Number.isInteger(visitIdCol) || visitIdCol < 1) {
+    throw new Error("Cannot generate Visit ID: 'Visit ID' column is missing or invalid in Visit Register.");
+  }
+
+  // 3. Inspect durable ledger (throws directly on spreadsheet read failure)
+  let maxExistingCounter = 0;
+  const existingIds = new Set();
+  const lastRow = registerSheet.getLastRow();
+
+  if (lastRow >= 2) {
+    const idValues = registerSheet
+      .getRange(2, visitIdCol, lastRow - 1, 1)
+      .getValues()
+      .flat();
+
+    idValues.forEach(val => {
+      const str = String(val || "").trim();
+      if (str) {
+        existingIds.add(str);
+        if (str.startsWith(prefix)) {
+          const suffix = str.substring(prefix.length);
+          if (/^\d+$/.test(suffix)) {
+            const num = parseInt(suffix, 10);
+            if (Number.isSafeInteger(num) && num > maxExistingCounter) {
+              maxExistingCounter = num;
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // 4. Read and sanitize Script Property counter (cannot be sole source of truth)
+  const rawProp = properties.getProperty(key);
+  let safePropCounter = 0;
+  if (rawProp !== null && rawProp !== undefined && rawProp !== "") {
+    const parsed = Number(rawProp);
+    if (Number.isSafeInteger(parsed) && parsed > 0 && /^\d+$/.test(String(rawProp).trim())) {
+      safePropCounter = parsed;
+    }
+  }
+
+  // 5. Next sequence must exceed both the durable sheet max and valid property counter
+  let counter = Math.max(maxExistingCounter, safePropCounter) + 1;
+
+  // 6. Collision guarantee: advance past any ID already recorded in Visit Register
+  let candidateId = prefix + String(counter).padStart(4, "0");
+  while (existingIds.has(candidateId)) {
+    counter++;
+    candidateId = prefix + String(counter).padStart(4, "0");
+  }
+
+  // 7. Persist updated counter to Script Properties
   properties.setProperty(key, String(counter));
 
-  return "ILV-" + date + "-" + String(counter).padStart(4, "0");
+  return candidateId;
 }
 
 
@@ -90,6 +164,9 @@ function processVisitorRequestRow(sourceRow) {
       ". Run retryTestSubmission() instead."
     );
   }
+
+  // Fail-closed environment validation before acquiring lock or modifying resources
+  getValidatedEnvironmentConfig();
 
   // Acquire lock.
   const lock = LockService.getScriptLock();
@@ -159,8 +236,8 @@ function processVisitorRequestRow(sourceRow) {
       );
     }
 
-    // Generate unique Visit ID.
-    visitId = generateVisitId();
+    // Generate unique Visit ID (reconciling with existing records in registerSheet).
+    visitId = generateVisitId(registerSheet);
 
     // Prepare register record.
     const record = {
@@ -227,6 +304,9 @@ function processVisitorRequestRow(sourceRow) {
  * Installable Google Forms submission trigger handler.
  */
 function onVisitorRequestSubmitted(e) {
+  // Fail-closed environment validation
+  getValidatedEnvironmentConfig();
+
   if (!e || !e.range) {
     throw new Error(
       "This function must be executed by a spreadsheet form-submit trigger."
@@ -249,6 +329,9 @@ function onVisitorRequestSubmitted(e) {
  * Safe to run again: removes duplicate triggers for this handler.
  */
 function installVisitorRequestTrigger() {
+  // Fail-closed environment validation
+  getValidatedEnvironmentConfig();
+
   const spreadsheet = getPrimarySpreadsheet();
 
   const existingTriggers = ScriptApp.getProjectTriggers();

@@ -85,9 +85,12 @@ Automated intake sheet populated by the Google Forms engine for visit requests.
 | **C** | `Admission Number / KTU ID/Aadhar Number (For Public)` | String | Identification number (Student ID, KTU ID, or Government ID). |
 | **D** | `Mobile Number` | String / Numeric | Primary mobile phone contact. |
 | **E** | `Email address` | String | Primary contact email address. |
-| **F** | `Purpose of visit` | String | Reason for visit (project, workshop, prototyping, tour). |
-| **G** | `Date of visit` | Date / String | Proposed visit date requested by the applicant. |
-| **H** | `Time of Visit` | String / Time | Proposed start time slot requested by the applicant. |
+| **F** | `Date of visit` | Date / String | Proposed visit date requested by the applicant (Question 4 in Google Form). |
+| **G** | `Time of Visit` | String / Time | Proposed start time slot requested by the applicant (Question 5 in Google Form). |
+| **H** | `Purpose of visit` | String | Reason for visit (project, workshop, prototyping, tour) (Question 6 in Google Form). |
+
+> [!NOTE]
+> The column order in columns F:H (`Date of visit` → `Time of Visit` → `Purpose of visit`) strictly reflects the live Visitor Request Google Form question sequence, ensuring direct positional integrity with `Requests.js` dynamic header resolution.
 
 ---
 
@@ -116,12 +119,12 @@ The canonical visit registry containing operational records, approvals, attendan
 | **18** | `Decision Remarks` | String | Yes | `""` | Text | Rejection reason or approval instructions. |
 | **19** | `Decision At` | DateTime | Yes | `""` | DateTime | Timestamp when status was set to APPROVED/REJECTED. |
 | **20** | `Decision By` | String | Yes | `""` | Email | Administrator who authorized the visit. |
-| **21** | `Decision Email Status` | String | No | `"NOT_SENT"` | `"NOT_SENT"`, `"SENT"`, `"FAILED"` | Dispatch status of decision notification email. |
-| **22** | `Decision Email Sent At`| DateTime | Yes | `""` | DateTime | Timestamp of successful decision email dispatch. |
-| **23** | `Feedback Email Status` | String | No | `"NOT_SENT"` | `"NOT_SENT"`, `"SENT"`, `"FAILED"` | Dispatch status of feedback invitation email. |
-| **24** | `Feedback Email Sent At`| DateTime | Yes | `""` | DateTime | Timestamp of successful feedback email dispatch. |
+| **21** | `Decision Email Status` | String | No | `"NOT_SENT"` | `"NOT_SENT"`, `"SENDING"`, `"SENT"`, `"FAILED"` | Dispatch status of decision notification email. `"SENDING"` indicates an active atomic dispatch lease. |
+| **22** | `Decision Email Sent At`| DateTime | Yes | `""` | DateTime | Dual-purpose timestamp: (1) In-flight dispatch claim lease start time when status is `"SENDING"`; (2) Delivery completion timestamp when status is `"SENT"`. Cleared (`""`) when status is `"NOT_SENT"` or `"FAILED"`. |
+| **23** | `Feedback Email Status` | String | No | `"NOT_SENT"` | `"NOT_SENT"`, `"SENDING"`, `"SENT"`, `"FAILED"` | Dispatch status of feedback invitation email. `"SENDING"` indicates an active atomic dispatch lease. |
+| **24** | `Feedback Email Sent At`| DateTime | Yes | `""` | DateTime | Dual-purpose timestamp: (1) In-flight dispatch claim lease start time when status is `"SENDING"`; (2) Delivery completion timestamp when status is `"SENT"`. Cleared (`""`) when status is `"NOT_SENT"` or `"FAILED"`. |
 | **25** | `Feedback Status` | String | No | `"NOT_RECEIVED"`| `"NOT_RECEIVED"`, `"PENDING_REVIEW"`, `"APPROVED"`, `"REJECTED"` | State of visitor feedback lifecycle. |
-| **26** | `Last Error` | String | Yes | `""` | Text | Last captured exception or error message. |
+| **26** | `Last Error` | String | Yes | `""` | Text | Last captured exception or error message. Incorporates bounded retry metadata: e.g. `"[Attempt X/Y] error"`, `"[Attempt 3/3 - Max Retries Reached] error"`, or `"[Permanent Failure] error"`. Cleared on successful dispatch or retry. |
 
 ---
 

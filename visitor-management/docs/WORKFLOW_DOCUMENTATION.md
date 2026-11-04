@@ -146,34 +146,41 @@ This document describes the operational workflows of the **IDEA Lab CET Visitor 
     [Log 'ATTENDANCE_VALIDATION' (REJECTED)]* Attendance Marked At = new Date()
     [Exit Early]                            * Attendance Marked By = admin email
                                             [Log 'ATTENDANCE_RECORDED' (SUCCESS)]
-                                                      |
-                                            [Release ScriptLock]
+                                                                                                   [Release ScriptLock]
+                                                       |
+                                             [Execute Post-Lock Action: sendFeedbackInvitationForRecord()]
 ```
 
 ### Technical Details
-- **Trigger**: Installable OnEdit trigger on Primary Spreadsheet.
-- **Entry Function**: `handleAttendanceEdit(e)` in `Attendance.js`.
-- **State Validation**: Transition to `COMPLETED` or `NO_SHOW` is permitted **only** from `APPROVED`.
-- **Rollback Behavior**: If previous status was not `APPROVED`, the function programmatically reverts the cell back to `e.oldValue`.
-- *Architecture Note*: Currently, marking `COMPLETED` does not immediately dispatch the feedback email; it relies on the time-driven trigger in Workflow 4.
+- **Trigger**: Consolidated installable OnEdit trigger `handleVisitRegisterEdit(e)` installed via `installVisitRegisterTrigger()`.
+- **Worker Function**: `executeAttendance()` in `Attendance.js`.
+- **State Validation**: Transition to `COMPLETED` or `NO_SHOW` is permitted **only** from `APPROVED`. Confirmed Visit Date cannot be in the future relative to `Asia/Kolkata` today.
+- **Rollback Behavior**: If previous status was not `APPROVED` or date is invalid, cell reverts to `oldValue` and an audit entry is logged.
+- **Immediate Dispatch**: Valid `COMPLETED` transitions immediately queue `sendFeedbackInvitationForRecord()` via `postLockAction`, dispatching the feedback invitation outside the lock. The time-driven 15-minute background job in Workflow 4 acts as an automatic fallback.
 
 ---
 
 ## Workflow 4: Feedback Invitation Dispatch
 
 ```
-[Time-Driven Trigger: Every 15 mins] OR [Admin manual trigger: retryFailedFeedbackEmails()]
+[OnEdit Completion Event] OR [Time-Driven Trigger: Every 15 mins]
                                       |
                                       v
                  [Function: processPendingFeedbackEmails(onlyVisitId)]
                                       |
-                         [Acquires ScriptLock (tryLock: 10s)]
+                         [Acquires Brief Scan Lock (tryLock: 10s)]
                                       |
                          [Scan Visit Register Rows 2 to N]
                                       |
           Filter: Visit Status === 'COMPLETED' AND Feedback Email Status === 'NOT_SENT'
                                       |
+                         [Release Scan Lock Immediately]
+                                      |
                                (For Each Eligible Row)
+                                      |
+                    [Function: sendFeedbackInvitationForRecord()]
+                                      |
+                    [Pre-Check Brief Lock: Skip if already SENT]
                                       |
                     +-----------------+-----------------+
                     |                                   |
@@ -183,25 +190,25 @@ This document describes the operational workflows of the **IDEA Lab CET Visitor 
        * Last Error = 'Missing...'          - Injects Visit ID, Visitor Name,
        * Log 'FEEDBACK_EMAIL' (FAILED)        Visitor ID, Visit Date into prefilled URL
                                                         |
-                                            [Dispatch MailApp.sendEmail()]
+                                            [Dispatch MailApp.sendEmail() OUTSIDE LOCK]
                                                         |
                                             +-----------+-----------+
                                             |                       |
                                         (Success)               (Failure)
                                             |                       |
-                             * Feedback Email Status = SENT  * Feedback Email Status = FAILED
-                             * Feedback Email Sent At = now  * Last Error = error.message
-                             * Last Error = cleared          * Log 'FEEDBACK_EMAIL' (FAILED)
-                             * Log 'FEEDBACK_EMAIL' (SUCCESS)
-                                            |                       |
-                                            +-----------+-----------+
-                                                        |
-                                              [Release ScriptLock]
+                             [Acquire Post-Lock: 15s]     [Acquire Post-Lock: 15s]
+                             * Feedback Email Status=SENT * Feedback Email Status=FAILED
+                             * Feedback Email Sent At=now * Last Error = error.message
+                             * Last Error = cleared       * Log 'FEEDBACK_EMAIL' (FAILED)
+                             * Log 'FEEDBACK_EMAIL'(OK)   * SpreadsheetApp.flush()
+                             * SpreadsheetApp.flush()     * Release Post-Lock
+                             * Release Post-Lock
 ```
 
 ### Technical Details
-- **Trigger**: Time-driven installable trigger running every 15 minutes (`installFeedbackEmailTrigger()`).
-- **Entry Function**: `processPendingFeedbackEmails(onlyVisitId)` in `Feedback.js`.
+- **Trigger**: Triggered directly by `handleVisitRegisterEdit(e)` on attendance completion, and backed up by a time-driven installable trigger running every 15 minutes (`installFeedbackEmailTrigger()`).
+- **Worker Function**: `sendFeedbackInvitationForRecord()` in `Feedback.js`.
+- **Lock Management**: `MailApp.sendEmail()` executes entirely outside the lock. Brief locks (15s timeout) guard status checking and status commits.
 - **Prefilled Form Parameters**:
   - `entry.1068746764`: Visit ID
   - `entry.740405242`: Visitor Name
@@ -232,46 +239,57 @@ This document describes the operational workflows of the **IDEA Lab CET Visitor 
 (Not Found or Duplicate)   (Unique Match Found)
     |                           |
 [Throw Error & Log FAILED]      v
-                  [Identity Verification Against Canonical Record]
-                  * submittedEmail.toLowerCase() === registeredEmail.toLowerCase()
-                  * submittedVisitorId === registeredVisitorId (if provided)
+                  [Validate Visit Status Eligibility]
+                  * visitStatus === 'COMPLETED'
                                 |
                   +-------------+-------------+
                   |                           |
-            (Mismatch)                    (Match)
+            (Status !== COMPLETED)      (Status === COMPLETED)
                   |                           |
-         [Throw Error & Log]                  v
-                                  [Check Duplicate in Feedback Register]
-                                  * Scans Feedback Register for existing Visit ID
+         [Throw Error & Log FAILED]           v
+                                [Identity Verification Against Canonical Record]
+                                * submittedEmail.toLowerCase() === registeredEmail.toLowerCase()
+                                * submittedVisitorId === registeredVisitorId (if provided)
                                               |
-                                  +-----------+-----------+
-                                  |                       |
-                             (Duplicate)             (First Entry)
-                                  |                       |
-                         [Throw Error & Log]              v
-                                            [Synthesize Feedback Record]
-                                            * Feedback ID = ILF-YYYYMMDD-HHmmss-XXXXXX
-                                            * Read trusted Visitor Name & ID from Visit Register
-                                            * Read user comments & Public Display Consent
-                                            * Moderation Status = PENDING_REVIEW
-                                                          |
-                                            [Append to Feedback Register]
-                                                          |
-                                            [Update Visit Register]
-                                            * Feedback Status = PENDING_REVIEW
-                                                          |
-                                            [Log 'FEEDBACK_SUBMISSION' (SUCCESS)]
-                                                          |
-                                            [Release ScriptLock]
+                                +-------------+-------------+
+                                |                           |
+                          (Mismatch)                    (Match)
+                                |                           |
+                       [Throw Error & Log]                  v
+                                                [Check Duplicate in Feedback Register]
+                                                * Scans Feedback Register for existing Visit ID
+                                                            |
+                                                +-----------+-----------+
+                                                |                       |
+                                           (Duplicate)             (First Entry)
+                                                |                       |
+                                       [Throw Error & Log]              v
+                                                          [Synthesize Feedback Record]
+                                                          * Feedback ID = ILF-YYYYMMDD-HHmmss-XXXXXX
+                                                          * Read trusted Visitor Name & ID from Visit Register
+                                                          * Read user comments & Public Display Consent
+                                                          * Moderation Status = PENDING_REVIEW
+                                                                        |
+                                                          [Append to Feedback Register]
+                                                                        |
+                                                          [Update Visit Register]
+                                                          * Feedback Status = PENDING_REVIEW
+                                                          * SpreadsheetApp.flush()
+                                                                        |
+                                                          [Log 'FEEDBACK_SUBMISSION' (SUCCESS)]
+                                                                        |
+                                                          [Release ScriptLock]
 ```
 
 ### Technical Details
 - **Trigger**: Installable Form Submit trigger on Feedback Spreadsheet (`installFeedbackSubmissionTrigger()`).
 - **Entry Function**: `onFeedbackSubmitted(e)` in `FeedbackSubmissions.js`.
 - **Security & Integrity Enforcement**:
+  - **Status Eligibility**: Submissions strictly require `Visit Status === "COMPLETED"`. Feedback from `PENDING`, `APPROVED`, `REJECTED`, or `NO_SHOW` visits is strictly rejected.
   - Even if the visitor altered the prefilled Visitor Name or Date on the form, the canonical data stored in `Feedback Register` is pulled directly from the verified `Visit Register` record.
   - Case-insensitive email comparison ensures strict matching.
   - Duplicate feedback submissions for the same Visit ID are blocked.
+  - `SpreadsheetApp.flush()` commits dual-sheet mutations atomically.
 
 ---
 

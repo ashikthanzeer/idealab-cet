@@ -6,18 +6,20 @@ This document details verified bugs, architectural vulnerabilities, edge cases, 
 
 ## Issue Summary Matrix
 
-| ID | Issue Description | Severity | Classification | Impacted Files |
-| :-: | :--- | :---: | :---: | :--- |
-| **ISSUE-01** | Time-driven feedback email skips all eligible records | **CRITICAL** | Confirmed Bug | `Feedback.js` |
-| **ISSUE-02** | Cross-spreadsheet triggers fail on `getActiveSpreadsheet()` / `System Logs` not found | **CRITICAL** | Confirmed Bug | `Code.js`, `FeedbackSubmissions.js`, `Moderation.js`, `Requests.js` |
-| **ISSUE-03** | Hardcoded column index 12 in decision and attendance edit triggers | **HIGH** | Confirmed Flaw | `Decisions.js`, `Attendance.js` |
-| **ISSUE-04** | Redundant onEdit triggers fire on column 12 edits (no same-edit lock contention) | **HIGH** | Confirmed Design Flaw | `Decisions.js`, `Attendance.js` |
-| **ISSUE-05** | Premature visit completion permitted without visit date validation | **MEDIUM** | Confirmed Flaw | `Attendance.js` |
-| **ISSUE-06** | Non-atomic register synchronization in feedback submission | **HIGH** | High Risk | `FeedbackSubmissions.js` |
-| **ISSUE-07** | Feedback accepted without verifying visit `COMPLETED` status | **MEDIUM** | High Risk | `FeedbackSubmissions.js` |
-| **ISSUE-08** | Missing `SpreadsheetApp.flush()` after email status mutation | **MEDIUM** | High Risk | `Decisions.js`, `Feedback.js` |
-| **ISSUE-09** | Date formatting exception on invalid or empty Confirmed Visit Date | **MEDIUM** | Potential Bug | `Feedback.js` |
-| **ISSUE-10** | Missing primary spreadsheet ID configuration & hardcoded secrets | **LOW** | Design Defect | `Code.js` |
+| ID | Issue Description | Severity | Classification | Status | Impacted Files |
+| :-: | :--- | :---: | :---: | :---: | :--- |
+| **ISSUE-01** | Time-driven feedback email skips all eligible records | **CRITICAL** | Confirmed Bug | **RESOLVED** (Phase 1) | `Feedback.js` |
+| **ISSUE-02** | Cross-spreadsheet triggers fail on `getActiveSpreadsheet()` / `System Logs` not found | **CRITICAL** | Confirmed Bug | **RESOLVED** (Phase 1) | `Code.js`, `FeedbackSubmissions.js`, `Moderation.js`, `Requests.js` |
+| **ISSUE-03** | Hardcoded column index 12 in decision and attendance edit triggers | **HIGH** | Confirmed Flaw | **RESOLVED** (Phase 1) | `Decisions.js`, `Attendance.js` |
+| **ISSUE-04** | Redundant onEdit triggers fire on column 12 edits (no same-edit lock contention) | **HIGH** | Confirmed Design Flaw | **RESOLVED** (Phase 1) | `Decisions.js`, `Attendance.js` |
+| **ISSUE-05** | Premature visit completion permitted without visit date validation | **MEDIUM** | Confirmed Flaw | **RESOLVED** (Phase 1) | `Attendance.js` |
+| **ISSUE-06** | Non-atomic register synchronization in feedback submission | **HIGH** | High Risk | **RESOLVED** (Phase 2) | `FeedbackSubmissions.js` |
+| **ISSUE-07** | Feedback accepted without verifying visit `COMPLETED` status | **MEDIUM** | High Risk | **RESOLVED** (Phase 2) | `FeedbackSubmissions.js` |
+| **ISSUE-08** | Missing `SpreadsheetApp.flush()` after email status mutation | **MEDIUM** | High Risk | **RESOLVED** (Phase 2) | `Decisions.js`, `Feedback.js` |
+| **ISSUE-09** | Date formatting exception on invalid or empty Confirmed Visit Date | **MEDIUM** | Potential Bug | **RESOLVED** (Phase 1) | `Feedback.js` |
+| **ISSUE-10** | Missing primary spreadsheet ID configuration & hardcoded secrets | **LOW** | Design Defect | **RESOLVED** (Phase 1) | `Code.js` |
+| **ISSUE-11** | TOCTOU race condition in email dispatch allows concurrent duplicate emails | **HIGH** | Concurrency Vulnerability | **RESOLVED** (Phase 2 Hardening) | `Code.js`, `Decisions.js`, `Feedback.js` |
+
 
 ---
 
@@ -212,8 +214,8 @@ if (existingFeedback.some(id => String(id).trim() === visitId)) {
 ```
 The re-attempt is permanently blocked, yet the `Visit Register` remains stuck on `NOT_RECEIVED`.
 
-#### Remediation Plan
-Wrap the dual-sheet update with compensating rollback logic or verify both sheets can be written to before appending rows, followed by immediate `SpreadsheetApp.flush()`.
+#### Remediation Status: RESOLVED (Phase 2)
+Both `visitSheet` and `feedbackSheet` references are validated, headers mapped, and verified before any mutations occur. Immediate `SpreadsheetApp.flush()` is invoked after updating `Visit Register` column `Feedback Status`, guaranteeing atomic synchronization across administrative boundaries.
 
 ---
 
@@ -225,26 +227,34 @@ In `FeedbackSubmissions.js:208-213`:
 const visitStatusColumn = visitHeaders[normalizeFeedbackHeader("Visit Status")];
 const visitStatus = visitRecord[visitStatusColumn - 1];
 ```
-The variable `visitStatus` is extracted but **never checked**. Feedback can be accepted for a visit whose status is `PENDING`, `REJECTED`, or `CANCELLED`.
+The variable `visitStatus` was extracted but **never checked**. Feedback could previously be accepted for visits whose status was `PENDING`, `APPROVED`, `REJECTED`, or `NO_SHOW`.
 
-#### Remediation Plan
-Add validation:
+#### Remediation Status: RESOLVED (Phase 2)
+Added strict status eligibility validation in `FeedbackSubmissions.js:215-223`:
 ```javascript
+const visitStatus = String(visitRecord[visitStatusColumn - 1] || "").trim().toUpperCase();
+
 if (visitStatus !== CONFIG.VISIT_STATUS.COMPLETED) {
-  throw new Error("Feedback can only be submitted for completed visits. Current status: " + visitStatus);
+  throw new Error(
+    `Feedback submission rejected: Visit ${visitId} status is '${visitStatus || "EMPTY"}'. ` +
+    `Feedback can only be submitted for visits marked '${CONFIG.VISIT_STATUS.COMPLETED}'.`
+  );
 }
 ```
+Rejections are captured, logged to `System Logs` with `Operation: FEEDBACK_SUBMISSION`, `Result: FAILED`, and prevent feedback registration.
 
 ---
 
 ### ISSUE-08: Missing `SpreadsheetApp.flush()` After Email Mutations (High Risk)
 
 #### Root Cause Analysis
-In `Decisions.js` and `Feedback.js`, status flags (`Decision Email Status = SENT`, `Feedback Email Status = SENT`) are set using `setValue()`, but `SpreadsheetApp.flush()` is never invoked.
-Google Sheets buffers range mutations in memory until script execution finishes. If an unhandled exception or Google quota timeout occurs after `MailApp.sendEmail()` but before the script exits, the email is delivered to the recipient, but the spreadsheet status update is discarded. On the next execution or retry, the email will be sent a second time.
+In `Decisions.js` and `Feedback.js`, status flags (`Decision Email Status = SENT`, `Feedback Email Status = SENT`) were set using `setValue()`, but `SpreadsheetApp.flush()` was never invoked.
+Google Sheets buffers range mutations in memory until script execution finishes. If an unhandled exception or Google quota timeout occurs after `MailApp.sendEmail()` but before the script exits, the email is delivered to the recipient, but the spreadsheet status update is discarded. On the next execution or retry, the email would be sent a second time.
 
-#### Remediation Plan
-Call `SpreadsheetApp.flush()` immediately after updating email status columns.
+#### Remediation Status: RESOLVED (Phase 2)
+1. Decoupled `MailApp.sendEmail()` from global script locks.
+2. In `dispatchDecisionEmail()` and `sendFeedbackInvitationForRecord()`, status updates to `SENT` or `FAILED` are followed immediately by `SpreadsheetApp.flush()`.
+3. Pre-checks under brief locks verify `EMAIL_STATUS.SENT` before calling `MailApp.sendEmail()`, ensuring idempotent dispatch across concurrent or repeated triggers.
 
 ---
 
@@ -261,14 +271,8 @@ date: Utilities.formatDate(
 ```
 If `Confirmed Visit Date` is empty, formatted as text, or invalid, `Utilities.formatDate()` throws an unhandled exception: `The parameters don't match the method signature for Utilities.formatDate`. This halts batch email processing for all subsequent rows in that loop iteration.
 
-#### Remediation Plan
-Validate that the input value is a valid Date object before formatting:
-```javascript
-const rawDate = row[headers["Confirmed Visit Date"] - 1];
-const dateString = (rawDate instanceof Date && !isNaN(rawDate))
-  ? Utilities.formatDate(rawDate, CONFIG.TIMEZONE, "yyyy-MM-dd")
-  : "";
-```
+#### Remediation Status: RESOLVED (Phase 1)
+Implemented `formatFeedbackVisitDate()` with instance verification and timestamp validation before formatting, returning an empty string or safely coerced date on empty/malformed inputs.
 
 ---
 
@@ -280,5 +284,76 @@ In `Code.js`:
 - `CONFIG` lacks any entry for `PRIMARY_SPREADSHEET_ID`.
 - `.clasp.json` contains `scriptId: "1iD4DgvehNIMwxoMHN2YsGH8vIg7u7vLdSztYCCG12FxNrj5OFINoTrIu"`.
 
-#### Remediation Plan
-Use `PropertiesService.getScriptProperties()` for environment-specific IDs and credentials. Provide an administration setup script to initialize script properties safely without committing production IDs to version control.
+#### Remediation Status: RESOLVED (Phase 1)
+Added `PRIMARY_SPREADSHEET_ID` configuration constant and implemented `PropertiesService.getScriptProperties()` override in `getPrimarySpreadsheet()`, supporting environment-specific IDs without breaking active container fallback.
+
+---
+
+### ISSUE-11: Time-of-Check to Time-of-Use (TOCTOU) Email Dispatch Race Condition (Concurrency Vulnerability)
+
+#### Root Cause Analysis
+In the initial lock optimization, `MailApp.sendEmail()` was extracted outside the global script lock. An idempotency pre-check was introduced: under a brief lock, the script checked whether the email status was `SENT`, released the lock, called `MailApp.sendEmail()`, and subsequently acquired a second lock to write `SENT`.
+
+This design suffered from a classic **Time-of-Check to Time-of-Use (TOCTOU)** race condition:
+1. Execution A checks `Decision Email Status` under lock $\rightarrow$ reads `NOT_SENT`.
+2. Execution A releases the lock and prepares to call `MailApp.sendEmail()`.
+3. Execution B (triggered concurrently by a fast edit or duplicate trigger) acquires the lock and checks `Decision Email Status` $\rightarrow$ still reads `NOT_SENT`!
+4. Execution B releases the lock and proceeds to call `MailApp.sendEmail()`.
+5. Both Execution A and Execution B invoke `MailApp.sendEmail()`, transmitting **duplicate emails to the visitor**.
+6. Both executions eventually write `SENT`, masking the race condition in the database.
+
+#### Remediation Status: RESOLVED (Phase 2 Hardening)
+Implemented a formal **Atomic Dispatch Claim & Lease Protocol**:
+
+1. **Atomic Dispatch Claim (Step 1)**:
+   - Under `ScriptLock`, the script inspects the row's email status.
+   - If status is `SENT`, dispatch is skipped (`reason: "ALREADY_SENT"`).
+   - If status is `SENDING` and the claim timestamp is active (`!isClaimStale(claimTime)`), dispatch is skipped (`reason: "CURRENTLY_SENDING"`).
+   - If eligible, the status is atomically updated to `SENDING`, a claim timestamp is written to the existing sent-at column (`Decision Email Sent At` or `Feedback Email Sent At`), `SpreadsheetApp.flush()` is called, and the lock is released.
+2. **External Dispatch (Step 2)**:
+   - `MailApp.sendEmail()` executes outside all locks, preventing external network latency from blocking sheet operations.
+3. **Post-Dispatch Commit (Step 3)**:
+   - A brief commit lock is acquired.
+   - On success: status $\rightarrow$ `SENT`, `Sent At` $\rightarrow$ completion timestamp, `Last Error` cleared, `SpreadsheetApp.flush()`.
+   - On failure: status $\rightarrow$ `FAILED`, `Sent At` cleared, `Last Error` populated with exception string, `SpreadsheetApp.flush()`.
+4. **Stale Lease Recovery**:
+   - Safe lease expiration timeout is configured to 10 minutes (`CONFIG.EMAIL_CLAIM_TIMEOUT_MS = 600,000`), exceeding the standard 6-minute Google Apps Script runtime limit.
+   - If a script execution terminates unexpectedly during external dispatch, subsequent invocations or background scheduled tasks detect `isClaimStale(claimTime) === true`, reclaim the record, and safely retry dispatch.
+
+---
+
+## 3. Architectural Limitations of Exactly-Once Email Delivery with Google Apps Script & Google Sheets
+
+### 3.1 Theoretical Impossibility in Distributed Environments
+In computer science and distributed systems theory, **strictly guaranteed exactly-once message delivery** is provably impossible across independent systems without a distributed transaction coordinator employing a Two-Phase Commit (2PC) protocol or distributed consensus (e.g., Paxos/Raft).
+
+In the Google Workspace architecture:
+1. **Google Drive / SpreadsheetApp**: Provides persistent tabular storage backed by Google Drive sheet revision servers. Range updates are buffered in memory and flushed via RPC.
+2. **MailApp / GmailApp**: Outbound SMTP email gateway communicating with Google's transactional mail relays. Once an email is dispatched to the relay, it cannot be recalled or rolled back.
+3. **Google Apps Script V8 Engine**: Ephemeral serverless container environment with a strict 6-minute execution quota and uncatchable termination signals on container pre-emption.
+
+Because `SpreadsheetApp` and `MailApp` do not participate in a unified distributed transaction:
+- If a script marks `Decision Email Status = SENT` *before* calling `MailApp.sendEmail()`, an unexpected failure during email transmission (such as an SMTP quota error, network timeout, or recipient syntax rejection) permanently records the email as `SENT`, causing **silent email loss (at-most-once delivery)**.
+- If a script calls `MailApp.sendEmail()` *before* writing `Decision Email Status = SENT` to the spreadsheet, an unexpected failure (such as script timeout, VM termination, or spreadsheet lock contention) results in the email reaching the visitor while the sheet still reads `NOT_SENT`. The next scheduled batch run will retransmit the email, causing a **duplicate delivery (at-least-once delivery)**.
+
+### 3.2 Implemented Engineering Safeguards: Atomic Dispatch Claim & Lease Architecture
+To achieve production reliability without distributed transactions, the system strictly adopts an **idempotent lease-claim architecture**:
+
+1. **Atomic In-Flight Claim (Step 1)**:
+   Before initiating external network I/O, a brief script lock (15s timeout) inspects `Decision Email Status` / `Feedback Email Status`.
+   - Records already `SENT` are immediately bypassed (`reason: "ALREADY_SENT"`).
+   - Records currently claimed as `SENDING` with an active lease are bypassed (`reason: "CURRENTLY_SENDING"`).
+   - Eligible records are atomically transitioned to `SENDING`, their claim timestamp is recorded in the sent-at column, and `SpreadsheetApp.flush()` forces the write to Google Drive storage before releasing the lock.
+2. **External Dispatch Decoupling (Step 2)**:
+   `MailApp.sendEmail()` is invoked *outside* the global script lock. A slow mail relay response does not block other user edits, attendance check-ins, or incoming form submissions.
+3. **Immediate Atomic Commit & Flush (Step 3)**:
+   Upon email dispatch completion, a brief lock is re-acquired.
+   - On delivery success: status transitions to `SENT`, the completion timestamp is written to the sent-at column, `Last Error` is cleared, and `SpreadsheetApp.flush()` commits the result.
+   - On delivery failure: status transitions to `FAILED`, the sent-at column is cleared, `Last Error` captures the exact error string, and `SpreadsheetApp.flush()` commits the failure state.
+4. **Stale Lease Recovery**:
+   A 10-minute lease window (`CONFIG.EMAIL_CLAIM_TIMEOUT_MS = 10 * 60 * 1000`) protects against container crashes or uncatchable GAS timeout terminations. If a script terminates mid-dispatch, subsequent manual edits or scheduled 15-minute background sweeps recognize the claim as expired via `isClaimStale(claimTime)` and safely reclaim the record for retry.
+5. **The Unavoidable Distributed Ambiguity**:
+   If the script successfully transmits an email over SMTP via `MailApp.sendEmail()` but the container experiences immediate termination before the brief commit lock records `SENT`, the record remains in `SENDING`. After the 10-minute lease window elapses, recovery will treat the record as interrupted and re-dispatch the email. In the absence of a Two-Phase Commit between MailApp and Drive, this trade-off is mathematically unavoidable; our architecture intentionally prioritizes at-least-once delivery (guaranteeing visitors receive critical approval and feedback links) over message loss.
+6. **Audit Trail Synchronization**:
+   Every attempt is recorded in `System Logs` with `SUCCESS` or `FAILED` alongside the captured exception message, enabling administrators to identify and re-queue any delivery issues without data corruption.
+

@@ -27,6 +27,9 @@ function handleFeedbackModerationEdit(e) {
     return;
   }
 
+  // Fail-closed environment validation before acquiring lock or modifying resources
+  getValidatedEnvironmentConfig();
+
   const lock = LockService.getScriptLock();
 
   if (!lock.tryLock(10000)) {
@@ -235,6 +238,9 @@ visitSheet.getRange(
  * on the separate Feedback Spreadsheet.
  */
 function installFeedbackModerationTrigger() {
+  // Fail-closed environment validation
+  getValidatedEnvironmentConfig();
+
   const handler = "handleFeedbackModerationEdit";
 
   ScriptApp.getProjectTriggers().forEach(trigger => {
