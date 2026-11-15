@@ -115,4 +115,20 @@ export const visitorFeedbackType = defineType({
       type: 'text',
     }),
   ],
+
+  preview: {
+    select: {
+      title: 'visitorName',
+      moderationStatus: 'moderationStatus',
+      visitDate: 'visitDate',
+    },
+    prepare({title, moderationStatus, visitDate}) {
+      const subtitleParts = [moderationStatus, visitDate].filter(Boolean)
+
+      return {
+        title: title || 'Unnamed Visitor',
+        subtitle: subtitleParts.join(' · '),
+      }
+    },
+  },
 })
