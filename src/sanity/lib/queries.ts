@@ -101,3 +101,22 @@ export const galleryQuery =(limit?: number | undefined) =>  defineQuery(`
     order
   }${limit ? `[0...${limit}]` : ""}
 `);
+
+/* ─────────────────────────────────────────
+   Visitor Feedback (public)
+   ───────────────────────────────────────── */
+
+export const publicVisitorFeedbackQuery = defineQuery(`
+  *[
+    _type == "visitorFeedback" &&
+    moderationStatus == "APPROVED" &&
+    publicDisplayConsent == "YES"
+  ] | order(visitDate desc) {
+    _id,
+    visitorName,
+    visitDate,
+    equipmentUsed,
+    purposeOfVisit,
+    feedbackComments
+  }
+`);
