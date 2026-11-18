@@ -14,8 +14,9 @@ import type { Component } from "./components/page";
 import type { GalleryItem } from "./gallery/page";
 
 import ToolsGrid from "@/components/ToolsGrid";
-import  ComponentsGrid from "@/components/ComponentsGrid";
+import ComponentsGrid from "@/components/ComponentsGrid";
 import GallaryGrid from "@/components/GallaryGrid";
+import FeedbackView, { Feedback } from "@/components/FeedbackView";
 
 export default async function Home() {
   const [
@@ -30,10 +31,10 @@ export default async function Home() {
   const components = componentData as Component[];
   const tools = toolData as Tool[];
   const galleryItems = galleryData as GalleryItem[];
+  const feedbacks = [] as Feedback[];
 
   return (
     <div className="relative">
-
 
       <Nav />
 
@@ -114,6 +115,21 @@ export default async function Home() {
               </div>
             </div>
           </div>
+        </section>
+
+        <section id="feedback-form" className="px-6 py-8 md:px-10 md:pb-8">
+          <div className="flex flex-row items-center justify-between gap-4">
+            <h2 className="text-lg uppercase font-semibold">What people say about IDEALab</h2>
+            {/* <a
+              href="/gallery"
+              className="inline-flex items-center gap-1 text-primary"
+            >
+              View All Feedbacks
+              <i className="ph ph-arrow-right"></i>
+            </a> */}
+          </div>
+
+          <FeedbackView feedbacks={feedbacks} />
         </section>
 
         <section id="about" className="px-6 py-8 md:px-10 md:py-14">
@@ -268,7 +284,7 @@ export default async function Home() {
               </a>
             </div>
 
-            <ComponentsGrid components={components.slice(0,3)} />
+            <ComponentsGrid components={components.slice(0, 3)} />
           </div>
 
           <div>
@@ -285,7 +301,7 @@ export default async function Home() {
               </a>
             </div>
 
-             <ToolsGrid tools={tools.slice(0,3)} />
+            <ToolsGrid tools={tools.slice(0, 3)} />
           </div>
         </section>
 
@@ -357,7 +373,7 @@ export default async function Home() {
             </a>
           </div>
 
-      <GallaryGrid galleryItems={galleryItems.slice(0,3)} />
+          <GallaryGrid galleryItems={galleryItems.slice(0, 3)} />
         </section>
 
         <section id="ready" className="px-6 py-8 md:px-10 md:pb-8">

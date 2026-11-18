@@ -52,7 +52,7 @@ export function Nav() {
         <>
 
             {menuOpen &&
-                <div className="absolute top-22 w-full z-50">
+                <div className="absolute sticky top-22 w-full z-50">
                     <div className="mx-4 bg-[#030919] border border-neutral-800 rounded-lg p-4">
                         <nav>
                             <ul className='flex lg:hidden flex-col gap-4 text-lg text-neutral-200 font-medium'>
