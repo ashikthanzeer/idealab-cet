@@ -4,6 +4,7 @@ import { sanityFetch } from "@/sanity/lib/live";
 import {
   componentsQuery,
   galleryQuery,
+  publicVisitorFeedbackQuery,
   toolsQuery,
 } from "@/sanity/lib/queries";
 import { Nav } from "./components/ui/Nav";
@@ -23,15 +24,17 @@ export default async function Home() {
     { data: componentData },
     { data: toolData },
     { data: galleryData },
+    { data: feedbacksData },
   ] = await Promise.all([
     sanityFetch({ query: componentsQuery(3) }),
     sanityFetch({ query: toolsQuery(3) }),
     sanityFetch({ query: galleryQuery(3) }),
+    sanityFetch({ query: publicVisitorFeedbackQuery }),
   ]);
   const components = componentData as Component[];
   const tools = toolData as Tool[];
   const galleryItems = galleryData as GalleryItem[];
-  const feedbacks = [] as Feedback[];
+  const feedbacks = feedbacksData as Feedback[];
 
   return (
     <div className="relative">

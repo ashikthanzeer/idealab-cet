@@ -14,12 +14,11 @@ import { useMedia } from 'react-use';
 
 export type Feedback = {
   _id: string
-  name: string
-  validId: string
-  date: Date
-  equipmentsUsed: string[]
-  purpose: string
-  feedback: string
+  visitorName: string
+  visitDate: Date
+  equipmentUsed: string
+  purposeOfVisit: string
+  feedbackComments: string
 }
 
 function getIconClass(equipmentName: string) {
@@ -76,14 +75,14 @@ export default function FeedbackView({ feedbacks }: { feedbacks: Feedback[] }) {
             <DialogPanel className="max-w-lg h-fit max-h-[70vh] flex flex-col relative border border-neutral-300 shadow-xl bg-neutral-50 p-6 rounded-lg">
               <div className="flex flex-row items-center justify-start">
                 <div className='mr-3'>
-                  <i className={`text-2xl p-2 size-10 aspect-square block ph ${getIconClass(currFeedback?.equipmentsUsed[0])}`}></i>
+                  <i className={`text-2xl p-2 size-10 aspect-square block ph ${getIconClass(currFeedback?.equipmentUsed)}`}></i>
                 </div>
 
                 <div className='mr-3'>
                   <DialogTitle className="font-bold text-lg/6">
-                    {currFeedback?.name}
+                    {currFeedback?.visitorName}
                   </DialogTitle>
-                  <Description className="font-semibold uppercase text-neutral-600">{currFeedback?.equipmentsUsed[0]}</Description>
+                  <Description className="font-semibold uppercase text-neutral-600">{currFeedback?.equipmentUsed}</Description>
                 </div>
 
                 <button className='ml-auto text-lg grid place-items-center size-8 focus-within:border aspect-square rounded-lg hover:bg-neutral-200' onClick={() => setIsExpanded(false)}>
@@ -91,11 +90,11 @@ export default function FeedbackView({ feedbacks }: { feedbacks: Feedback[] }) {
                 </button>
               </div>
               <div className="mt-2 block max-h-[20%] overflow-y-auto">
-                {currFeedback?.purpose &&
-                  <p className="mb-1 text-sm font-semibold text-neutral-600 line-clamp-1">{currFeedback?.purpose}</p>
+                {currFeedback?.purposeOfVisit &&
+                  <p className="mb-1 text-sm font-semibold text-neutral-600 line-clamp-1">{currFeedback?.purposeOfVisit}</p>
                 }
                 <p className=''>
-                  {currFeedback?.feedback}
+                  {currFeedback?.feedbackComments}
                 </p>
               </div>
               {/* <div className="flex gap-4">
@@ -138,15 +137,15 @@ export default function FeedbackView({ feedbacks }: { feedbacks: Feedback[] }) {
                 >
                   <div className="flex flex-row items-center gap-2">
                     <div>
-                      <i className={`text-2xl p-2 size-10 aspect-square mt-1 block ph ${getIconClass(feedback.equipmentsUsed[0])}`}></i>
+                      <i className={`text-2xl p-2 size-10 aspect-square mt-1 block ph ${getIconClass(feedback.equipmentUsed)}`}></i>
                     </div>
                     <div>
-                      <p className="text-sm font-semibold capitalize">{feedback.name}</p>
-                      <p className="text-xs font-semibold uppercase text-neutral-700">{feedback.equipmentsUsed[0]}</p>
+                      <p className="text-sm font-semibold capitalize">{feedback.visitorName}</p>
+                      <p className="text-xs font-semibold uppercase text-neutral-700">{feedback.equipmentUsed}</p>
                     </div>
                   </div>
-                  <p className="mt-2 text-sm font-semibold text-neutral-600 line-clamp-1">{feedback.purpose}</p>
-                  <p className="mt-1 text-base text-neutral-800 line-clamp-5">{feedback.feedback}</p>
+                  <p className="mt-2 text-sm font-semibold text-neutral-600 line-clamp-1">{feedback.purposeOfVisit}</p>
+                  <p className="mt-1 text-base text-neutral-800 line-clamp-5">{feedback.feedbackComments}</p>
                 </div>
               </SwiperSlide>
             ))}
@@ -158,7 +157,7 @@ export default function FeedbackView({ feedbacks }: { feedbacks: Feedback[] }) {
             No feedbacks yet.
             <br />
             <span className="text-lg text-black">
-              Been to <b>IdeaLAB</b>? Drop your feedback <b>here</b>.
+              Been to <b>IdeaLAB</b>? Drop your feedback <b><a className='underline' href='https://docs.google.com/forms/d/e/1FAIpQLSfVwYug5L3CG2_71cFUsqQqQPsJdqtKUW1wqkyGbJopHrD1qA/viewform'>here</a></b>.
             </span>
           </p>
         </div>
