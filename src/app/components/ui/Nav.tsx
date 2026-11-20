@@ -50,55 +50,55 @@ export function Nav() {
 
     return (
         <>
+            <div className="sticky top-0 z-50">
+                <header className='bg-[#030919] flex flex-row items-center px-4 py-2 justify-between'>
+                    <div className="flex flex-row gap-4">
+                        <Link href="/">
+                            <img src="/icon.png" className='block size-16 md:size-20' alt="AICTE IDEA LAB, CET Icon" />
+                        </Link>
+                        <a className='block' href="https://cet.ac.in">
+                            <img src="/cet.png" className='block size-16 md:size-20' alt="CET Icon" />
+                        </a>
+                    </div>
 
-            {menuOpen &&
-                <div className="sticky top-22 w-full z-50">
-                    <div className="mx-4 bg-[#030919] border border-neutral-800 rounded-lg p-4">
+                    <div className="flex flex-row items-center gap-16">
                         <nav>
-                            <ul className='flex lg:hidden flex-col gap-4 text-lg text-neutral-200 font-medium'>
+                            <ul className='hidden lg:flex flex-row gap-6 text-neutral-200 font-medium'>
                                 <NavList />
                             </ul>
                         </nav>
+
+                        <div className='flex flex-row items-center gap-4'>
+                            <Link
+                                href="https://forms.gle/T7pqdreYZC7cUopA9" className='focus-within:ring-primary ring-0 focus-within:ring-offset-2 transition-all bg-primary text-white px-3 md:px-4 py-1 lg:py-2 rounded-md' target="_blank">
+                                Visit the Lab
+                            </Link>
+                            <button className="lg:hidden" onClick={() => {
+                                setMenuOpen(!menuOpen);
+                            }}>
+                                {menuOpen ?
+
+                                    <i className="text-neutral-300 text-2xl ph ph-x"></i>
+                                    :
+                                    <i className="text-neutral-300 text-2xl ph ph-list"></i>
+                                }
+                            </button>
+                        </div>
                     </div>
-                </div>
-            }
+                </header>
 
-
-            <header className='sticky top-0 z-50 bg-[#030919] flex flex-row items-center px-4 py-2 justify-between'>
-                <div className="flex flex-row gap-4">
-                    <Link href="/">
-                        <img src="/icon.png" className='block size-16 md:size-20' alt="AICTE IDEA LAB, CET Icon" />
-                    </Link>
-                    <a className='block' href="https://cet.ac.in">
-                        <img src="/cet.png" className='block size-16 md:size-20' alt="CET Icon" />
-                    </a>
-                </div>
-
-                <div className="flex flex-row items-center gap-16">
-                    <nav>
-                        <ul className='hidden lg:flex flex-row gap-6 text-neutral-200 font-medium'>
-                            <NavList />
-                        </ul>
-                    </nav>
-
-                    <div className='flex flex-row items-center gap-4'>
-                        <Link
-                            href="https://forms.gle/T7pqdreYZC7cUopA9" className='focus-within:ring-primary ring-0 focus-within:ring-offset-2 transition-all bg-primary text-white px-3 md:px-4 py-1 lg:py-2 rounded-md' target="_blank">
-                            Visit the Lab
-                        </Link>
-                        <button className="lg:hidden" onClick={() => {
-                            setMenuOpen(!menuOpen);
-                        }}>
-                            {menuOpen ?
-
-                                <i className="text-neutral-300 text-2xl ph ph-x"></i>
-                                :
-                                <i className="text-neutral-300 text-2xl ph ph-list"></i>
-                            }
-                        </button>
+                {menuOpen &&
+                    <div className="lg:hidden fixed top-22 w-full z-50">
+                        <div className="mx-4 bg-[#030919] border border-neutral-800 rounded-lg p-4">
+                            <nav>
+                                <ul className='flex lg:hidden flex-col gap-4 text-lg text-neutral-200 font-medium'>
+                                    <NavList />
+                                </ul>
+                            </nav>
+                        </div>
                     </div>
-                </div>
-            </header>
+                }
+            </div>
         </>
     )
 }
